@@ -4,7 +4,10 @@
 //  - Remotive  (sans clé)                                         -> missions à distance et freelance
 // Si une source échoue ou n'a pas de clé, les autres continuent.
 
-const TITLE_RE = /interior|innenarchitekt|intérieur|interieur|décorat|decorat|architecte d'int|space planner|set design|kitchen design|3d visuali|3d artist|archviz|rendering artist|scénograph|scenograph/i;
+// niveau 1 : design d'intérieur (score haut). niveau 2 : métiers proches (score plus bas).
+const CORE_RE = /interior|innenarchitekt|innenraum|raumgestalt|intérieur|interieur|décorat|decorat|architecte d'int|space planner|set design|kitchen design|küchenplan|scénograph|scenograph/i;
+const RELATED_RE = /architect|architekt|archviz|3d (artist|visuali|design|render)|visuali[sz]|render|cad\b|revit|archicad|sketchup|furniture|möbel|showroom|exhibition|messebau|retail design|store design|display design|stand design/i;
+const TITLE_RE = { test: (t) => CORE_RE.test(t) || RELATED_RE.test(t) };
 const SCAM_RE = /registration fee|processing fee|pay (a )?fee|western union|send money|crypto|frais d'inscription|frais de dossier/i;
 const COUNTRIES = {
   fr: "France", de: "Allemagne", nl: "Pays-Bas", es: "Espagne", it: "Italie",
@@ -25,8 +28,8 @@ function hash(s) {
 }
 function score(j) {
   let s = 58;
-  if (/interior|innenarchitekt|intérieur|interieur/i.test(j.t)) s += 20;
-  else if (TITLE_RE.test(j.t)) s += 10;
+  if (CORE_RE.test(j.t)) s += 20;
+  else s -= 8;
   const age = j.date ? (Date.now() - new Date(j.date).getTime()) / DAY : 30;
   if (age <= 3) s += 10; else if (age <= 7) s += 6; else if (age <= 14) s += 3;
   if (j.remote) s += 3;
@@ -74,40 +77,54 @@ async function adzuna() {
   return out;
 }
 
+const DBG = {};
+
 async function arbeitnow() {
+  const raw = [];
   try {
-    const d = await getJson("https://www.arbeitnow.com/api/job-board-api");
-    return (d.data || [])
-      .filter((r) => TITLE_RE.test(r.title || "") || (r.tags || []).some((t) => TITLE_RE.test(t)))
-      .map((r) => finish({
-        z: "ab", src: "Arbeitnow",
-        ct: /part/i.test((r.job_types || []).join(" ")) ? "part" : /contract|freelance/i.test((r.job_types || []).join(" ")) ? "free" : "full",
-        t: strip(r.title), c: r.company_name || "Entreprise", k: r.location || "Allemagne",
-        url: r.url, date: r.created_at ? new Date(r.created_at * 1000).toISOString() : null,
-        desc: strip(r.description), remote: !!r.remote,
-        visa: r.visa_sponsorship === true ? "yes" : "maybe", lang: "allemand / anglais"
-      }));
-  } catch (e) { return []; }
+    for (const page of [1, 2, 3]) {
+      const d = await getJson("https://www.arbeitnow.com/api/job-board-api?page=" + page);
+      (d.data || []).forEach((r) => raw.push(r));
+    }
+  } catch (e) { DBG.arbeitnow = { error: String(e.message || e).slice(0, 120), raw: raw.length }; }
+  if (!DBG.arbeitnow) DBG.arbeitnow = { raw: raw.length };
+  return raw
+    .filter((r) => TITLE_RE.test(r.title || "") || (r.tags || []).some((t) => TITLE_RE.test(t)))
+    .map((r) => finish({
+      z: "ab", src: "Arbeitnow",
+      ct: /part/i.test((r.job_types || []).join(" ")) ? "part" : /contract|freelance/i.test((r.job_types || []).join(" ")) ? "free" : "full",
+      t: strip(r.title), c: r.company_name || "Entreprise", k: r.location || "Allemagne",
+      url: r.url, date: r.created_at ? new Date(r.created_at * 1000).toISOString() : null,
+      desc: strip(r.description), remote: !!r.remote,
+      visa: r.visa_sponsorship === true ? "yes" : "maybe", lang: "allemand / anglais"
+    }));
 }
 
 async function remotive() {
-  try {
-    const d = await getJson("https://remotive.com/api/remote-jobs?search=" + encodeURIComponent("interior design") + "&limit=30");
-    return (d.jobs || [])
-      .filter((r) => TITLE_RE.test(r.title || ""))
-      .map((r) => {
-        const free = /contract|freelance/i.test(r.job_type || "");
-        const loc = r.candidate_required_location || "Worldwide";
-        return finish({
-          z: "ab", src: "Remotive",
-          ct: free ? "free" : /part/i.test(r.job_type || "") ? "part" : "full",
-          t: strip(r.title), c: r.company_name || "Entreprise", k: "À distance",
-          url: r.url, date: r.publication_date, desc: strip(r.description),
-          remote: true, tnok: /worldwide|anywhere|africa|emea/i.test(loc), visa: "no",
-          lang: "anglais · zone : " + loc
-        });
+  const raw = [];
+  const urls = [
+    "https://remotive.com/api/remote-jobs?category=design&limit=100",
+    "https://remotive.com/api/remote-jobs?search=" + encodeURIComponent("interior") + "&limit=50"
+  ];
+  for (const u of urls) {
+    try { const d = await getJson(u); (d.jobs || []).forEach((r) => raw.push(r)); }
+    catch (e) { DBG.remotive = { error: String(e.message || e).slice(0, 120) }; }
+  }
+  DBG.remotive = Object.assign(DBG.remotive || {}, { raw: raw.length });
+  return raw
+    .filter((r) => TITLE_RE.test(r.title || ""))
+    .map((r) => {
+      const free = /contract|freelance/i.test(r.job_type || "");
+      const loc = r.candidate_required_location || "Worldwide";
+      return finish({
+        z: "ab", src: "Remotive",
+        ct: free ? "free" : /part/i.test(r.job_type || "") ? "part" : "full",
+        t: strip(r.title), c: r.company_name || "Entreprise", k: "À distance",
+        url: r.url, date: r.publication_date, desc: strip(r.description),
+        remote: true, tnok: /worldwide|anywhere|africa|emea/i.test(loc), visa: "no",
+        lang: "anglais · zone : " + loc
       });
-  } catch (e) { return []; }
+    });
 }
 
 module.exports = async (req, res) => {
@@ -122,6 +139,7 @@ module.exports = async (req, res) => {
   res.status(200).send(JSON.stringify({
     updated: new Date().toISOString(),
     sources: { adzuna: lists[0].length, arbeitnow: lists[1].length, remotive: lists[2].length },
+    debug: DBG,
     jobs
   }));
 };
