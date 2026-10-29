@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#011C40"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Sayeh Connect</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: single phone-width column (max 480px) with a fixed bottom tab bar, as in the Sayeh Connect mockup. Navy + electric blue on cool white. */
+:root{
+  /* palette LUNA : #A7EBF2 #54ACBF #26658C #023859 #011C40 */
+  --bg:#EAF8FA; --surface:#FFFFFF; --ink:#011C40; --muted:#356585; --line:#C5E6EC;
+  --navy:#023859; --accent:#26658C; --accent-ink:#FFFFFF; --accent-soft:#D3F2F6; --accent-fg:#26658C;
+  --teal:#26658C; --teal-soft:#CBEAF0;
+  --ok:#1F8A55; --ok-soft:#DFF4E8; --warn:#8A5F10; --warn-soft:#FBEFD2; --bad:#B03A32; --bad-soft:#FBE3E0;
+  --vio:#023859; --vio-soft:#D6E4EE;
+  --hero-wall:#D7F0F4; --hero-floor:#9BC8D2;
+  --display:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --hand:"Caveat","Segoe Script",cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#011C40; --surface:#023859; --ink:#E4F9FB; --muted:#8FCBD8; --line:#1D5578;
+  --navy:#023859; --accent:#54ACBF; --accent-ink:#011C40; --accent-soft:#0B4A73; --accent-fg:#A7EBF2;
+  --teal:#A7EBF2; --teal-soft:#0F5A80;
+  --ok:#6FCB92; --ok-soft:#0F3D3A; --warn:#E3B55A; --warn-soft:#3A3516; --bad:#F08A80; --bad-soft:#3E2230;
+  --vio:#A7EBF2; --vio-soft:#123F66; --hero-wall:#0B4A73; --hero-floor:#26658C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#011C40; --surface:#023859; --ink:#E4F9FB; --muted:#8FCBD8; --line:#1D5578;
+  --navy:#023859; --accent:#54ACBF; --accent-ink:#011C40; --accent-soft:#0B4A73; --accent-fg:#A7EBF2;
+  --teal:#A7EBF2; --teal-soft:#0F5A80;
+  --ok:#6FCB92; --ok-soft:#0F3D3A; --warn:#E3B55A; --warn-soft:#3A3516; --bad:#F08A80; --bad-soft:#3E2230;
+  --vio:#A7EBF2; --vio-soft:#123F66; --hero-wall:#0B4A73; --hero-floor:#26658C; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.55 var(--display);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 96px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button,input,select,textarea{font-family:inherit}
+.app{max-width:480px;margin:0 auto;min-width:0}
+h1,h2,h3{margin:0;font-weight:700;text-wrap:balance}
+.logo{width:44px;height:44px;border-radius:24%;object-fit:cover;display:block;flex:none}
+.logo.big{width:92px;height:92px}
+
+/* splash */
+.splash{min-height:calc(100dvh - 40px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding-block:24px}
+.splash h1{font-size:34px;line-height:1.05;font-weight:800;letter-spacing:-.02em}
+.splash h1 span{color:var(--accent);display:block}
+.splash .tag{color:var(--muted);max-width:260px;margin:4px 0 6px}
+.hand{font:600 24px/1.15 var(--hand);color:var(--navy);transform:rotate(-3deg);margin:6px 0 18px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hand{color:var(--accent)}}
+:root[data-theme="dark"] .hand{color:var(--accent)}
+.splash .btn{width:100%;max-width:340px}
+
+body.sp{background:linear-gradient(165deg,#54ACBF 0%,#26658C 36%,#023859 68%,#011C40 100%) fixed}
+.sp .splash h1{color:#FFFFFF}.sp .splash h1 span{color:#A7EBF2}.sp .splash .tag{color:#E4F9FB}.sp .hand{color:#A7EBF2}
+.sp .btn.primary{background:#A7EBF2;color:#011C40;border-color:#A7EBF2}.sp .btn.link{color:#E4F9FB}
+.sp .wm p{color:#E4F9FB}.sp .wm b{color:#FFFFFF}.sp .wm img{filter:brightness(1.9) contrast(.95)}
+/* header + controls */
+.top{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:18px 0 10px;flex-wrap:wrap}
+.hello{display:flex;align-items:center;gap:10px;min-width:0}
+.hello b{display:block;font-size:17px;font-weight:700}
+.hello span{color:var(--muted);font-size:12px}
+.pagehead{padding:20px 0 8px}
+.pagehead h1{font-size:22px}
+.pagehead p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.zone{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:3px}
+.zone button{border:0;background:none;color:var(--muted);font:600 13px var(--display);padding:7px 14px;border-radius:99px;cursor:pointer}
+.zone button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 12px;margin:6px 0 12px}
+.search svg{width:20px;height:20px;color:var(--muted);flex:none}
+.search input{border:0;background:none;color:var(--ink);padding:13px 0;font-size:14px;width:100%;outline:none}
+.search:focus-within{border-color:var(--accent)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button,.pills button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:600 13px var(--display);padding:8px 14px;border-radius:99px;cursor:pointer}
+.chips button[aria-pressed="true"],.pills button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,.job:focus-visible,.row-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* job list */
+.note{background:var(--accent-soft);color:var(--ink);border-radius:12px;padding:10px 12px;font-size:12.5px;margin-bottom:12px}
+.count{display:flex;justify-content:space-between;align-items:baseline;margin:6px 0 10px}
+.count h2{font-size:16px}
+.count span{color:var(--muted);font-size:12px}
+.job{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;cursor:pointer}
+.job:hover{border-color:var(--accent)}
+.av{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-weight:800;font-size:16px;flex:none}
+.v0{background:var(--accent-soft);color:var(--accent-fg)}.v1{background:var(--teal-soft);color:var(--teal)}.v2{background:var(--warn-soft);color:var(--warn)}.v3{background:var(--vio-soft);color:var(--vio)}
+.job-t{font-weight:700;font-size:14.5px;line-height:1.3}
+.job-m{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:12px;margin-top:2px;min-width:0}
+.job-m svg{width:13px;height:13px;flex:none}
+.job-m span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.job-side{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.b-new{background:var(--ok-soft);color:var(--ok)}.b-pop{background:var(--bad-soft);color:var(--bad)}.b-rem{background:var(--accent-soft);color:var(--accent-fg)}.b-ex{background:var(--warn-soft);color:var(--warn)}
+.bm{border:0;background:none;color:var(--muted);cursor:pointer;padding:2px;display:grid}
+.bm svg{width:22px;height:22px}
+.bm[aria-pressed="true"]{color:var(--accent)}
+.empty{color:var(--muted);text-align:center;padding:28px 12px;border:1px dashed var(--line);border-radius:14px;margin-bottom:10px}
+
+/* detail */
+.dbar{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px}
+.icbtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.icbtn svg{width:20px;height:20px}
+.icbtn[aria-pressed="true"]{color:var(--accent);border-color:var(--accent)}
+.hero{border-radius:18px;overflow:hidden;border:1px solid var(--line);margin-bottom:14px}
+.hero svg{display:block;width:100%;height:auto}
+.d-title{font-size:21px;line-height:1.25;margin-bottom:4px}
+.d-co{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.d-co .av{width:26px;height:26px;border-radius:8px;font-size:11px}
+.d-meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-bottom:10px}
+.d-meta span{display:flex;align-items:center;gap:5px}.d-meta svg{width:15px;height:15px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.d-h{font-size:15px;margin:18px 0 6px}
+.d-p{color:var(--muted);margin:0}
+ul.req{margin:0;padding-inline-start:20px;color:var(--muted)}
+ul.req li{margin-bottom:3px}
+.warn{background:var(--bad-soft);color:var(--ink);border:1px solid var(--bad);border-radius:12px;padding:10px 12px;margin-top:14px;font-size:13px}
+.applied{background:var(--ok-soft);border-radius:12px;padding:10px 12px;margin-top:14px;font-size:13px;color:var(--ink)}
+.cta{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bg);border-top:1px solid var(--line);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.cta-in{max-width:480px;margin:0 auto;display:flex;gap:8px}
+.cta .btn{flex:1}
+.cta .btn.sq{flex:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:700 14px var(--display);padding:13px 18px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none;text-align:center}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.link{border:0;background:none;color:var(--accent);padding:8px}
+.btn.sm{font-size:13px;padding:8px 12px;border-radius:10px;font-weight:600}
+.btn[aria-disabled="true"],.btn[disabled]{opacity:.5;pointer-events:none}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+
+/* cards + forms */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;min-width:0}
+.row{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.row>*{min-width:0}
+.title{font-weight:700;font-size:14.5px}
+.meta{color:var(--muted);font-size:12.5px}
+.how{font-size:13px;color:var(--muted);margin:6px 0 8px}
+.how b{color:var(--ink);font-weight:700}
+.chip{font-size:11.5px;padding:3px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent-fg);font-weight:700;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}.chip.warn{background:var(--warn-soft);color:var(--warn)}.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center}
+.stat b{display:block;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--muted)}
+form.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+form.grid .full{grid-column:1/-1}
+@media (max-width:420px){form.grid{grid-template-columns:1fr}}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px;font-weight:600}
+input,select,textarea{width:100%;font-size:14px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 11px}
+textarea{min-height:200px;resize:vertical;line-height:1.55}
+.reminder{background:var(--warn-soft);border-radius:12px;padding:8px 10px;font-size:12.5px;margin:8px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.sites{display:grid;gap:10px}
+.site{display:grid;grid-template-columns:minmax(0,130px) minmax(0,1fr);gap:8px;align-items:start}
+.site a{color:var(--accent);font-weight:700;word-break:break-word}
+@media (max-width:420px){.site{grid-template-columns:1fr;gap:0}}
+h2.sec{font-size:15px;margin:18px 0 8px}
+
+/* profile */
+.me{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding:22px 0 14px}
+.me .big-av{width:76px;height:76px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800;font-size:26px;margin-bottom:8px}
+.me b{font-size:17px}.me span{color:var(--muted);font-size:13px}
+.prog{height:8px;border-radius:99px;background:var(--accent-soft);overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.menu{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:12px}
+.row-link{display:flex;align-items:center;gap:12px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);font:600 14px var(--display);padding:14px;cursor:pointer;text-align:start}
+.row-link:last-child{border-bottom:0}
+.row-link svg{width:20px;height:20px;color:var(--muted);flex:none}
+.row-link .grow{flex:1;min-width:0}
+.row-link .chev{width:16px;height:16px}
+.panel{padding:12px 14px 14px;border-bottom:1px solid var(--line);background:var(--bg)}
+
+/* tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  padding:6px max(10px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.tabs-in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tabs button{border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font:600 11px var(--display);padding:6px 0;cursor:pointer;border-radius:10px}
+.tabs button svg{width:23px;height:23px}
+.tabs button[aria-current="page"]{color:var(--accent)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:13px;z-index:40;max-width:90vw;text-align:center}
+.wm{display:flex;flex-direction:column;align-items:center;gap:8px;margin:30px 0 6px;text-align:center}
+.wm img{width:118px;height:auto;opacity:.85}
+.wm p{margin:0;color:var(--muted);font-size:11.5px;line-height:1.5;max-width:290px}
+.wm b{color:var(--ink);font-weight:700}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wm img{filter:brightness(1.9) contrast(.95)}}
+:root[data-theme="dark"] .wm img{filter:brightness(1.9) contrast(.95)}
+@media (prefers-reduced-motion:no-preference){.job,.btn{transition:border-color .15s,transform .1s}.btn:active{transform:scale(.98)}}
+</style>
+
+</head><body>
+<div class="app" id="app"></div>
+<div id="chrome"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- icônes ---------- */
+var P={
+ home:"M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10",
+ heart:"M12 20s-7-4.4-9-9.2C1.8 7.6 3.9 4.5 7 4.5c1.9 0 3.4 1 5 3 1.6-2 3.1-3 5-3 3.1 0 5.2 3.1 4 6.3C19 15.6 12 20 12 20z",
+ chat:"M4 5h16v11H9l-5 4z",
+ user:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 3.6-6 8-6s8 2 8 6",
+ search:"M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM21 21l-5-5",
+ bookmark:"M6 3h12v18l-6-4-6 4z",
+ back:"M15 5l-7 7 7 7",
+ pin:"M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+ clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2",
+ chev:"M9 5l7 7-7 7",
+ plus:"M12 5v14M5 12h14",
+ file:"M7 3h7l5 5v13H7zM14 3v5h5",
+ sliders:"M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4"
+};
+function ic(n,fill){return '<svg viewBox="0 0 24 24" fill="'+(fill?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+P[n]+'"/></svg>'}
+var LOGO="icons/logo.png";
+var WM="icons/watermark.png";
+
+/* ---------- données ---------- */
+// Offres d'exemple : elles montrent le format. Les vraies offres arrivent à l'étape suivante (API).
+var CT={full:"Temps plein",part:"Temps partiel",free:"Freelance"};
+var DEMO=[
+ {id:"t1",z:"tn",ct:"full",t:"Designer d'intérieur",c:"Cabinet d'architecture",k:"Tunis",s:90,mode:"Sur site",lang:"Arabe / français",how:"Envoyez votre CV et votre portfolio PDF par e-mail, avec votre numéro de téléphone."},
+ {id:"t2",z:"tn",ct:"full",t:"Designer déco et salons",c:"Agence de décoration",k:"Sfax",s:84,mode:"Sur site",lang:"Arabe / français",how:"Candidature depuis la page de l'entreprise ou via LinkedIn."},
+ {id:"t3",z:"tn",ct:"full",t:"Designer d'intérieur hôtelier",c:"Groupe touristique",k:"Sousse",s:80,mode:"Sur site",lang:"Français / anglais",how:"Envoyez le portfolio avec un message en français aux ressources humaines."},
+ {id:"t4",z:"tn",ct:"part",t:"Designer 3D",c:"Promoteur immobilier",k:"Nabeul",s:77,mode:"Hybride",lang:"Arabe / français",how:"Envoyez vos rendus 3D et le lien de votre portfolio."},
+ {id:"t5",z:"tn",ct:"full",t:"Designer d'intérieur junior",c:"Bureau de design",k:"Monastir",s:72,mode:"Sur site",lang:"Arabe / français",how:"Candidature par e-mail, relance après 5 jours."},
+ {id:"t6",z:"tn",ct:"full",t:"Stage payant avec frais d'inscription",c:"Structure inconnue",k:"Tunisie",s:35,mode:"—",lang:"—",how:"L'offre demande de payer des frais pour le stage. Ne postulez pas.",scam:true},
+ {id:"tf1",z:"tn",ct:"free",t:"Design d'intérieur d'une villa",c:"Client particulier",k:"Hammamet",s:88,mode:"Mission ponctuelle",lang:"Arabe",how:"Envoyez un devis avec 3 projets similaires et convenez d'un acompte avant de commencer."},
+ {id:"tf2",z:"tn",ct:"free",t:"Décoration d'un local commercial",c:"Porteur de projet",k:"Tunis",s:82,mode:"Mission ponctuelle",lang:"Arabe / français",how:"Présentez un moodboard et des rendus 3D préliminaires, et fixez le nombre de modifications."},
+ {id:"tf3",z:"tn",ct:"free",t:"Rendus 3D pour un projet immobilier",c:"Promoteur immobilier",k:"Sousse",s:78,mode:"À la pièce",lang:"Arabe / français",how:"Envoyez des exemples de rendus et un prix par pièce."},
+ {id:"e1",z:"ab",ct:"full",t:"Designer d'intérieur résidentiel",c:"Studio de design",k:"Allemagne",s:92,visa:"yes",lang:"Allemand / anglais",how:"Envoyez CV et lien portfolio via le formulaire de l'entreprise."},
+ {id:"e2",z:"ab",ct:"full",t:"Assistant designer d'intérieur",c:"Cabinet d'architecture",k:"France",s:88,visa:"maybe",lang:"Français",how:"E-mail direct avec lettre de motivation en français."},
+ {id:"e3",z:"ab",ct:"full",t:"Designer hôtels et restaurants",c:"Groupe hôtelier",k:"Portugal",s:85,visa:"yes",lang:"Anglais",how:"Candidature depuis la page carrières du site."},
+ {id:"e4",z:"ab",ct:"full",t:"Designer d'intérieur en télétravail",c:"Studio digital",k:"Pays-Bas",s:81,visa:"no",remote:true,lang:"Anglais",how:"Portfolio PDF léger (moins de 10 Mo)."},
+ {id:"e5",z:"ab",ct:"part",t:"Designer boutiques et salons",c:"Agence de décoration",k:"Espagne",s:79,visa:"maybe",lang:"Espagnol / anglais",how:"Candidature via LinkedIn, avec un message court au recruteur."},
+ {id:"e6",z:"ab",ct:"full",t:"Designer d'espaces de travail",c:"Fabricant de mobilier",k:"Pologne",s:76,visa:"yes",lang:"Anglais",how:"Formulaire du site : CV et diplôme de licence."},
+ {id:"e7",z:"ab",ct:"full",t:"Designer d'intérieur 3D",c:"Studio de visualisation",k:"Italie",s:73,visa:"maybe",lang:"Anglais / italien",how:"Envoyez vos rendus 3D (3ds Max, SketchUp) avec le lien."},
+ {id:"e8",z:"ab",ct:"full",t:"Designer d'intérieur senior",c:"Cabinet de design",k:"Belgique",s:70,visa:"no",lang:"Français / néerlandais",how:"E-mail avec portfolio, relance après 5 jours."},
+ {id:"e9",z:"ab",ct:"full",t:"Décorateur résidentiel",c:"Société inconnue",k:"—",s:41,visa:"no",lang:"—",how:"L'offre demande de payer des frais avant l'entretien. Ne postulez pas.",scam:true},
+ {id:"e10",z:"ab",ct:"part",t:"Designer d'intérieur à temps partiel",c:"Café-boutique",k:"Roumanie",s:66,visa:"maybe",lang:"Anglais",how:"Candidature par e-mail avec des photos de projets."},
+ {id:"af1",z:"ab",ct:"free",t:"Rendu 3D d'un appartement",c:"Client Upwork",k:"À distance",remote:true,s:86,lang:"Anglais",how:"Envoyez une offre courte en anglais avec 3 rendus. Paiement via la plateforme uniquement."},
+ {id:"af2",z:"ab",ct:"free",t:"Plan d'aménagement d'un restaurant",c:"Client en Europe",k:"À distance",remote:true,s:80,lang:"Anglais / français",how:"Commencez par poser des questions sur le budget et les surfaces, puis proposez un prix par étapes."}
+];
+DEMO.forEach(function(o){o.demo=true});
+var live=[],mode="demo";
+var KEN={"Allemagne":"Germany","France":"France","Portugal":"Portugal","Pays-Bas":"Netherlands","Espagne":"Spain","Pologne":"Poland","Italie":"Italy","Belgique":"Belgium","Roumanie":"Romania"};
+var SITES_TN=[
+ ["Tanitjob","https://www.tanitjob.com/","Cherchez « designer d'intérieur » ou « décorateur » et postulez depuis la page."],
+ ["Keejob","https://www.keejob.com/","Créez votre compte et votre CV une fois, puis postulez en un clic."],
+ ["ANETI (emploi.nat.tn)","https://www.emploi.nat.tn/","Site officiel de l'emploi en Tunisie."],
+ ["LinkedIn Tunisie","https://www.linkedin.com/jobs/search/?keywords=interior%20designer&location=Tunisia","Cherchez en Tunisie et activez une alerte quotidienne."],
+ ["Optioncarriere Tunisie","https://www.optioncarriere.tn/","Regroupe les offres de plusieurs sites tunisiens."]
+];
+var SITES_AB=[
+ ["LinkedIn Jobs","https://www.linkedin.com/jobs/","Cherchez « interior designer » + le pays, activez une alerte."],
+ ["Indeed","https://www.indeed.com/","Chaque pays a sa version. Postulez via le site ou l'e-mail de l'entreprise."],
+ ["EURES","https://eures.europa.eu/","Portail officiel de l'UE : déposez votre CV et postulez."],
+ ["Archello Jobs","https://www.archello.com/jobs","Offres spécialisées en architecture et design d'intérieur."],
+ ["Dezeen Jobs","https://www.dezeen.com/jobs/","Studios de design internationaux."],
+ ["Architizer Jobs","https://architizer.com/jobs/","Cabinets d'architecture et de design, lien portfolio demandé."],
+ ["StepStone","https://www.stepstone.de/","Allemagne : cherchez « Innenarchitekt », CV au format allemand."],
+ ["Welcome to the Jungle","https://www.welcometothejungle.com/","France : cherchez « architecte d'intérieur »."]
+];
+var SITES_FREE=[
+ ["Upwork","https://www.upwork.com/nx/search/jobs/?q=interior%20design","Missions de design et rendus 3D. Commencez par une offre courte et un portfolio."],
+ ["Fiverr","https://www.fiverr.com/","Créez un « Gig » pour un service précis, avec un prix clair."],
+ ["Malt","https://www.malt.fr/","Clients français et européens : un profil solide attire de meilleures missions."],
+ ["Freelancer","https://www.freelancer.com/","Missions variées, répondez avec des offres courtes."],
+ ["Behance","https://www.behance.net/joblist","Montrez vos projets, il y a aussi une section emplois."]
+];
+var STATUS={none:"Sans réponse",replied:"A répondu",interview:"Entretien",rejected:"Refus",archived:"Archivé"};
+var DAY=86400000;
+var TPL={
+ fr:{
+  first:{n:"Premier message",s:"Candidature – {role}",b:"Bonjour {contact},\n\nJe me permets de vous contacter au sujet du poste de {role} chez {company}. Je suis designer d'intérieur, titulaire d'une licence, et je souhaite mettre mon expérience au service de votre équipe.\n\nVous trouverez mon CV et mon portfolio en pièce jointe. Je reste disponible pour un échange à votre convenance.\n\nCordialement,\n{me}"},
+  follow:{n:"Relance",s:"Relance – Candidature {role}",b:"Bonjour {contact},\n\nJe me permets de revenir vers vous au sujet de ma candidature pour le poste de {role} chez {company}, envoyée il y a quelques jours.\n\nJe reste très intéressé(e) par cette opportunité et disponible pour un entretien.\n\nCordialement,\n{me}"},
+  thanks:{n:"Après entretien",s:"Merci pour notre entretien",b:"Bonjour {contact},\n\nMerci d'avoir pris le temps d'échanger avec moi au sujet du poste de {role} chez {company}. Notre discussion a renforcé mon intérêt pour votre projet.\n\nN'hésitez pas à me contacter si vous avez besoin d'informations complémentaires.\n\nCordialement,\n{me}"},
+  after:{n:"Après un refus",s:"Merci pour votre retour",b:"Bonjour {contact},\n\nMerci pour votre réponse concernant le poste de {role} chez {company}. Je comprends votre décision.\n\nJe serais ravi(e) de rester en contact pour de futures opportunités et vous souhaite une bonne continuation.\n\nCordialement,\n{me}"}
+ },
+ en:{
+  first:{n:"Premier message",s:"Application – {role}",b:"Hello {contact},\n\nI am writing about the {role} position at {company}. I am an interior designer with a bachelor's degree, and I would be glad to bring my experience to your team.\n\nPlease find my CV and portfolio attached. I am available to talk at your convenience.\n\nKind regards,\n{me}"},
+  follow:{n:"Relance",s:"Following up – {role} application",b:"Hello {contact},\n\nI am following up on my application for the {role} position at {company}, which I sent a few days ago.\n\nI remain very interested in this opportunity and available for an interview.\n\nKind regards,\n{me}"},
+  thanks:{n:"Après entretien",s:"Thank you for your time",b:"Hello {contact},\n\nThank you for taking the time to speak with me about the {role} position at {company}. Our conversation strengthened my interest in your work.\n\nPlease let me know if you need any further information.\n\nKind regards,\n{me}"},
+  after:{n:"Après un refus",s:"Thank you for your reply",b:"Hello {contact},\n\nThank you for your reply regarding the {role} position at {company}. I understand your decision.\n\nI would be glad to stay in touch for future opportunities, and I wish you all the best.\n\nKind regards,\n{me}"}
+ }
+};
+
+/* ---------- état ---------- */
+var state={contacts:[],dismissed:[],favs:[],manual:[],seen:[],profile:{name:"Mohamed Sayeh",title:"Architecte d'intérieur",city:"",phone:"",email:"",portfolio:"",cv:""},remind:5};
+var store=null;
+var ui={view:"home",zone:"tn",ct:"all",q:"",detail:null,msgTab:"apps",filter:"all",addOpen:false,open:"",tplLang:"fr",tplKey:"first",tplContactName:"",tplCompany:"",tplRole:"Interior Designer"};
+var seen=false;
+
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function pad(n){return n<10?"0"+n:""+n}
+function fmt(ts){var d=new Date(ts);return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()+" "+pad(d.getHours())+":"+pad(d.getMinutes())}
+function uid(){return "c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function toast(m){var t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},2200)}
+function pool(){return live.concat(state.manual,mode==="demo"?DEMO:[])}
+function offerById(id){return pool().concat(state.favs).filter(function(o){return o.id===id})[0]}
+function isFav(id){return state.favs.some(function(f){return f.id===id})}
+function first(){return (state.profile.name||"").trim().split(/\s+/)[0]||""}
+function initials(s){var w=String(s).replace(/\(.*?\)/g,"").trim().split(/\s+/).filter(function(x){return x.length>2||/^[A-Z]/.test(x)});return ((w[0]||"?").charAt(0)+(w[1]?w[1].charAt(0):"")).toUpperCase()}
+function vcls(id){var n=0;for(var i=0;i<id.length;i++)n+=id.charCodeAt(i);return "v"+(n%4)}
+function loc(o){return o.k==="À distance"?"À distance":o.k+(o.z==="tn"&&o.k!=="Tunisie"?", Tunisie":"")}
+function rank(o){return o.s+(o.ct==="free"?8:0)}
+function applied(){return state.contacts.map(function(c){return c.offerId}).filter(Boolean)}
+function appFor(id){return state.contacts.filter(function(c){return c.offerId===id})[0]}
+function visibleOffers(z,ct){
+  var ap=applied();
+  return pool().filter(function(o){return (o.z===z||(z==="tn"&&o.tnok))&&(ct==="all"||o.ct===ct)&&state.dismissed.indexOf(o.id)<0&&ap.indexOf(o.id)<0}).sort(function(a,b){return rank(b)-rank(a)}).slice(0,10);
+}
+function offerUrl(o){
+  if(o.scam)return "";
+  if(o.url)return o.url;
+  if(o.ct==="free")return "https://www.upwork.com/nx/search/jobs/?q="+encodeURIComponent("interior design");
+  return "https://www.linkedin.com/jobs/search/?keywords="+encodeURIComponent("interior designer")+"&location="+encodeURIComponent(o.z==="tn"?"Tunisia":(KEN[o.k]||"Europe"));
+}
+function badge(o,i){
+  if(o.scam)return '<span class="badge b-pop">Suspect</span>';
+  if(o.remote)return '<span class="badge b-rem">À distance</span>';
+  if(o.s>=88)return '<span class="badge b-pop">Populaire</span>';
+  if(i<2)return '<span class="badge b-new">Nouveau</span>';
+  return "";
+}
+
+/* ---------- stockage ---------- */
+var saving=Promise.resolve();
+function snapshot(){return {contacts:state.contacts,dismissed:state.dismissed,favs:state.favs,manual:state.manual,seen:state.seen,profile:state.profile,remind:state.remind}}
+function persist(){
+  var snap=JSON.stringify(snapshot());
+  saving=saving.then(function(){return store?store.save(JSON.parse(snap)):null}).catch(function(){toast("Enregistrement impossible, réessayez")});
+}
+function localStore(){
+  return {
+    load:function(){try{var v=localStorage.getItem("sayeh-connect-v1")||localStorage.getItem("radar-v1");return Promise.resolve(v?JSON.parse(v):null)}catch(e){return Promise.resolve(null)}},
+    save:function(s){try{localStorage.setItem("sayeh-connect-v1",JSON.stringify(s))}catch(e){}return Promise.resolve()}
+  };
+}
+function dbStore(db,id){
+  var ref=db.doc("data/users/"+id+"/app/state");
+  return {load:function(){return ref.get().then(function(s){return s.exists?s.data():null})},save:function(s){return ref.set(s)}};
+}
+function readSeen(){try{return localStorage.getItem("sayeh-seen")==="1"}catch(e){return false}}
+function writeSeen(){try{localStorage.setItem("sayeh-seen","1")}catch(e){}}
+
+/* ---------- logique candidatures ---------- */
+function dueInfo(c){
+  if(c.status!=="none")return null;
+  var base=c.lastFollow||c.created, days=Math.floor((Date.now()-base)/DAY);
+  if(days>=state.remind)return {days:days,archive:(c.followups||0)>=2};
+  return null;
+}
+function addContact(o){
+  var c={id:uid(),name:o.name||"—",country:o.country||"",phone:o.phone||"",offer:o.offer||"",notes:o.notes||"",status:"none",created:Date.now(),followups:0,lastFollow:null,statusAt:null};
+  if(o.offerId)c.offerId=o.offerId;
+  state.contacts.unshift(c);persist();return c;
+}
+function profileScore(){
+  var p=state.profile,f=["name","title","city","phone","email","portfolio","cv"],n=0;
+  f.forEach(function(k){if((p[k]||"").trim())n++});
+  return Math.round(n*100/f.length);
+}
+
+/* ---------- vues ---------- */
+function jobCard(o,i){
+  var fav=isFav(o.id);
+  return '<article class="job" tabindex="0" role="button" data-open="'+o.id+'" aria-label="'+esc(o.t)+'">'
+   +'<div class="av '+vcls(o.id)+'">'+esc(initials(o.c))+'</div>'
+   +'<div style="min-width:0"><div class="job-t">'+esc(o.t)+'</div>'
+   +'<div class="job-m">'+ic("pin")+'<span>'+esc(loc(o))+'</span></div>'
+   +'<div class="job-m">'+ic("clock")+'<span>'+CT[o.ct]+'</span></div></div>'
+   +'<div class="job-side">'+(badge(o,i)||'<span></span>')+'<button class="bm" data-fav="'+o.id+'" aria-pressed="'+fav+'" aria-label="'+(fav?"Retirer des favoris":"Ajouter aux favoris")+'">'+ic("bookmark",fav)+'</button></div></article>';
+}
+function listHtml(){
+  var q=ui.q.trim().toLowerCase();
+  var list=visibleOffers(ui.zone,ui.ct).filter(function(o){return !q||(o.t+" "+o.c+" "+o.k).toLowerCase().indexOf(q)>=0});
+  var h='<div class="count"><h2>Offres du jour</h2><span>'+list.length+' sur 10 max</span></div>';
+  if(!list.length)h+='<div class="empty">'+(q?'Aucune offre ne correspond à « '+esc(ui.q)+' ».':'Vous avez fait le tour des offres du jour. De nouvelles offres arrivent demain.')+'</div>';
+  list.forEach(function(o,i){h+=jobCard(o,i)});
+  return h;
+}
+function sitesFor(){
+  var jobs=ui.zone==="tn"?SITES_TN:SITES_AB;
+  if(ui.ct==="free")return SITES_FREE;
+  if(ui.ct==="all")return jobs.concat(SITES_FREE);
+  return jobs;
+}
+function viewHome(){
+  var h='<div class="top"><div class="hello"><img class="logo" alt="" src="'+LOGO+'"><div><b>'+(first()?'Bonjour, '+esc(first()):'Bonjour')+'</b><span>Design d\'intérieur · Tunisie et étranger</span></div></div>'
+   +'<div class="zone" role="group" aria-label="Zone"><button data-zone="tn" aria-pressed="'+(ui.zone==="tn")+'">Tunisie</button><button data-zone="ab" aria-pressed="'+(ui.zone==="ab")+'">Étranger</button></div></div>';
+  h+='<label class="search" for="q">'+ic("search")+'<input id="q" type="search" placeholder="Rechercher un poste, une ville…" value="'+esc(ui.q)+'" autocomplete="off"></label>';
+  h+='<div class="chips" role="group" aria-label="Type de contrat">'+[["all","Tous"],["full","Temps plein"],["part","Temps partiel"],["free","Freelance"]].map(function(c){return '<button data-ct="'+c[0]+'" aria-pressed="'+(ui.ct===c[0])+'">'+c[1]+'</button>'}).join("")+'</div>';
+  h+=noteHtml();
+  h+='<div id="list">'+listHtml()+'</div>';
+  h+=manualHtml();
+  h+='<h2 class="sec">Sites où postuler</h2><div class="card"><div class="sites">';
+  sitesFor().forEach(function(s){h+='<div class="site"><a href="'+s[1]+'" target="_blank" rel="noopener">'+esc(s[0])+'</a><div class="meta">'+esc(s[2])+'</div></div>'});
+  h+='</div></div>';
+  return h;
+}
+function viewFav(){
+  var list=state.favs.slice();
+  var h='<div class="pagehead"><h1>Favoris</h1><p>Les offres que vous avez enregistrées.</p></div>';
+  if(!list.length)h+='<div class="empty">Aucun favori. Touchez le signet d\'une offre pour la garder ici.</div>';
+  list.forEach(function(o,i){h+=jobCard(o,i)});
+  return h;
+}
+function viewDetail(){
+  var o=offerById(ui.detail);if(!o)return "";
+  var fav=isFav(o.id), ap=appFor(o.id);
+  var desc=o.desc?o.desc:o.ct==="free"
+    ?o.c+' propose une mission freelance : vous réalisez le projet de bout en bout, du concept aux plans et aux rendus.'
+    :o.c+' recrute pour un poste de '+o.t.toLowerCase()+'. Vous participerez à la conception d\'espaces fonctionnels et soignés, du concept à la réalisation.';
+  var req=o.ct==="free"
+    ?["Portfolio avec rendus 3D","Devis clair, par étape","Acompte ou paiement via la plateforme","Langues : "+o.lang]
+    :["Diplôme en architecture d'intérieur ou design d'espace","Maîtrise d'AutoCAD, SketchUp ou 3ds Max","Portfolio de projets récents","Langues : "+o.lang];
+  var tags=(o.demo?'<span class="badge b-ex">Exemple</span> ':'')+(o.src?'<span class="badge b-rem">'+esc(o.src)+'</span> ':'')+(o.ct==="free"?'<span class="badge b-new">Freelance</span> ':'');
+  if(o.z==="tn"&&o.mode)tags+='<span class="badge b-rem">'+esc(o.mode)+'</span>';
+  if(o.z==="ab"&&o.ct!=="free"&&!o.scam)tags+=o.visa==="yes"?'<span class="badge b-new">Visa soutenu</span>':o.visa==="maybe"?'<span class="badge b-ex">Visa à vérifier</span>':'<span class="badge b-rem">Pas de soutien visa</span>';
+  if(o.scam)tags='<span class="badge b-pop">Offre suspecte</span>';
+  var hero='<svg viewBox="0 0 400 190" role="img" aria-label="Illustration d\'un intérieur"><rect width="400" height="190" fill="var(--hero-wall)"/><rect y="140" width="400" height="50" fill="var(--hero-floor)"/><rect x="38" y="26" width="84" height="92" rx="4" fill="var(--accent-soft)" stroke="var(--line)" stroke-width="3"/><path d="M80 26v92M38 72h84" stroke="var(--line)" stroke-width="3"/><rect x="170" y="96" width="150" height="14" rx="4" fill="var(--navy)"/><rect x="180" y="110" width="8" height="40" fill="var(--navy)"/><rect x="302" y="110" width="8" height="40" fill="var(--navy)"/><rect x="190" y="76" width="30" height="20" rx="4" fill="var(--accent)"/><rect x="240" y="68" width="26" height="28" rx="4" fill="var(--warn-soft)" stroke="var(--line)"/><circle cx="352" cy="92" r="20" fill="var(--ok)" opacity=".85"/><rect x="348" y="110" width="8" height="34" fill="var(--navy)"/><path d="M330 30v26" stroke="var(--navy)" stroke-width="3"/><path d="M314 70l16-14 16 14z" fill="var(--warn)"/></svg>';
+  var h='<div class="dbar"><button class="icbtn" data-back="1" aria-label="Retour">'+ic("back")+'</button><button class="icbtn" data-fav="'+o.id+'" aria-pressed="'+fav+'" aria-label="Favori">'+ic("bookmark",fav)+'</button></div>';
+  h+='<div class="hero">'+hero+'</div>';
+  h+='<h1 class="d-title">'+esc(o.t)+'</h1><div class="d-co"><div class="av '+vcls(o.id)+'">'+esc(initials(o.c))+'</div>'+esc(o.c)+'</div>';
+  h+='<div class="d-meta"><span>'+ic("pin")+esc(loc(o))+'</span><span>'+ic("clock")+CT[o.ct]+'</span></div><div class="tags">'+tags+'</div>';
+  h+='<h3 class="d-h">Description</h3><p class="d-p">'+esc(desc)+'</p>';
+  h+='<h3 class="d-h">Profil recherché</h3><ul class="req">'+req.map(function(r){return '<li>'+esc(r)+'</li>'}).join("")+'</ul>';
+  h+='<h3 class="d-h">Comment postuler</h3><p class="d-p">'+esc(o.how)+'</p>';
+  if(o.scam)h+='<div class="warn"><b>Ne postulez pas.</b> Une offre sérieuse ne demande jamais de payer pour être recruté.</div>';
+  if(ap)h+='<div class="applied">Candidature enregistrée le <span dir="ltr">'+fmt(ap.created)+'</span>. Suivez la réponse dans l\'onglet Messages.</div>';
+  var url=offerUrl(o);
+  h+='<div class="cta"><div class="cta-in">'
+    +(o.scam?'<span class="btn primary" aria-disabled="true">Postuler</span>':'<a class="btn primary" data-apply="'+o.id+'" href="'+url+'" target="_blank" rel="noopener">'+(ap?'Rouvrir le site':'Postuler')+'</a>')
+    +(ap?'<button class="btn" data-goapps="1">Mes candidatures</button>':'<button class="btn" data-skip="'+o.id+'">Ignorer</button>')
+    +'</div></div>';
+  return h;
+}
+function viewMsg(){
+  var h='<div class="pagehead"><h1>Messages</h1><p>Vos candidatures, vos relances et vos modèles.</p></div>';
+  h+='<div class="pills" role="group"><button data-mtab="apps" aria-pressed="'+(ui.msgTab==="apps")+'">Candidatures</button><button data-mtab="tpl" aria-pressed="'+(ui.msgTab==="tpl")+'">Modèles</button></div>';
+  return h+(ui.msgTab==="apps"?appsHtml():tplHtml());
+}
+function appsHtml(){
+  var cs=state.contacts,total=cs.length;
+  var replied=cs.filter(function(c){return c.status==="replied"||c.status==="interview"}).length;
+  var none=cs.filter(function(c){return c.status==="none"}).length;
+  var rate=total?Math.round(replied*100/total):0;
+  var h='<div class="stats"><div class="stat"><b>'+total+'</b><span>Total</span></div><div class="stat"><b>'+replied+'</b><span>Réponses</span></div><div class="stat"><b>'+none+'</b><span>Sans réponse</span></div><div class="stat"><b>'+rate+'%</b><span>Taux</span></div></div>';
+  h+='<div class="btns" style="margin-bottom:10px"><button class="btn sm" data-toggleadd="1">'+(ui.addOpen?'Fermer le formulaire':'+ Ajouter un contact')+'</button></div>';
+  if(ui.addOpen)h+='<form id="addForm" class="grid card"><div><label for="f-name">Nom</label><input id="f-name" required autocomplete="off"></div><div><label for="f-country">Pays</label><input id="f-country" autocomplete="off"></div><div><label for="f-phone">Téléphone ou e-mail</label><input id="f-phone" autocomplete="off"></div><div><label for="f-offer">Offre (titre ou lien)</label><input id="f-offer" autocomplete="off"></div><div class="full"><label for="f-notes">Note</label><input id="f-notes" autocomplete="off"></div><div class="full"><button class="btn primary" type="submit" style="width:100%">Enregistrer (date et heure automatiques)</button></div></form>';
+  var F=[["all","Tous"],["due","À relancer"],["replied","Réponses"],["none","Sans réponse"],["archived","Archives"]];
+  h+='<div class="chips">'+F.map(function(f){return '<button data-filter="'+f[0]+'" aria-pressed="'+(ui.filter===f[0])+'">'+f[1]+'</button>'}).join("")+'</div>';
+  var shown=cs.filter(function(c){
+    if(ui.filter==="all")return c.status!=="archived";
+    if(ui.filter==="due")return !!dueInfo(c);
+    if(ui.filter==="replied")return c.status==="replied"||c.status==="interview";
+    if(ui.filter==="none")return c.status==="none";
+    return c.status==="archived"||c.status==="rejected";
+  });
+  if(!shown.length)h+='<div class="empty">'+(total?'Aucun contact dans cette liste.':'Aucune candidature pour le moment. Touchez « Postuler » sur une offre, ou ajoutez un contact.')+'</div>';
+  shown.forEach(function(c){
+    var d=dueInfo(c),cls=c.status==="replied"||c.status==="interview"?"ok":c.status==="rejected"?"bad":"";
+    h+='<article class="card" data-id="'+c.id+'"><div class="row"><div><div class="title">'+esc(c.name)+'</div><div class="meta">'+esc(c.country||"—")+(c.phone?' · <span dir="ltr">'+esc(c.phone)+'</span>':'')+'</div></div><span class="chip '+cls+'">'+STATUS[c.status]+'</span></div>'
+     +(c.offer?'<div class="how"><b>Offre :</b> '+esc(c.offer)+'</div>':'')+(c.notes?'<div class="how">'+esc(c.notes)+'</div>':'')
+     +'<div class="meta">Enregistré le <span dir="ltr">'+fmt(c.created)+'</span>'+(c.followups?' · relances : '+c.followups:'')+(c.statusAt?' · mis à jour le <span dir="ltr">'+fmt(c.statusAt)+'</span>':'')+'</div>';
+    if(d)h+='<div class="reminder"><span>'+(d.archive?'Deux relances sans réponse. Vous pouvez archiver.':d.days+' jours sans réponse. C\'est le moment de relancer.')+'</span>'+(d.archive?'<button class="btn sm" data-act="archive">Archiver</button>':'<button class="btn sm primary" data-act="followup">J\'ai relancé</button>')+'</div>';
+    h+='<div class="btns" style="margin-top:10px"><select data-act="status" aria-label="Statut" style="width:auto">'+Object.keys(STATUS).map(function(k){return '<option value="'+k+'"'+(k===c.status?' selected':'')+'>'+STATUS[k]+'</option>'}).join("")+'</select><button class="btn sm" data-act="tpl">Écrire</button><button class="btn sm" data-act="del">Supprimer</button></div></article>';
+  });
+  return h;
+}
+function fillTpl(){
+  var t=TPL[ui.tplLang][ui.tplKey];
+  var map={me:state.profile.name||"[Votre nom]",contact:ui.tplContactName||(ui.tplLang==="fr"?"Madame, Monsieur":"Sir or Madam"),company:ui.tplCompany||"[Entreprise]",role:ui.tplRole||"[Poste]"};
+  function sub(x){return x.replace(/\{(\w+)\}/g,function(_,k){return map[k]})}
+  return {s:sub(t.s),b:sub(t.b)};
+}
+function tplHtml(){
+  var h='<div class="card"><form class="grid" onsubmit="return false"><div><label for="t-contact">Nom du contact</label><input id="t-contact" value="'+esc(ui.tplContactName)+'"></div><div><label for="t-company">Entreprise</label><input id="t-company" value="'+esc(ui.tplCompany)+'"></div><div class="full"><label for="t-role">Poste</label><input id="t-role" value="'+esc(ui.tplRole)+'"></div></form></div>';
+  h+='<div class="pills">'+["fr","en"].map(function(l){return '<button data-lang="'+l+'" aria-pressed="'+(ui.tplLang===l)+'">'+(l==="fr"?"Français":"English")+'</button>'}).join("")+'</div>';
+  h+='<div class="chips">'+Object.keys(TPL.fr).map(function(k){return '<button data-key="'+k+'" aria-pressed="'+(ui.tplKey===k)+'">'+TPL.fr[k].n+'</button>'}).join("")+'</div>';
+  h+='<div class="card"><label for="t-subject">Objet</label><input id="t-subject" readonly><div style="height:10px"></div><label for="t-body">Message</label><textarea id="t-body" readonly></textarea><div class="btns" style="margin-top:10px"><button class="btn primary sm" id="copyBody">Copier le message</button><button class="btn sm" id="copySubject">Copier l\'objet</button></div></div>';
+  return h;
+}
+function viewProfile(){
+  var p=state.profile,pct=profileScore();
+  var h='<div class="me"><div class="big-av">'+esc(initials(p.name||"?"))+'</div><b>'+esc(p.name||"Votre nom")+'</b><span>'+esc(p.title||"Votre métier")+'</span></div>';
+  h+='<div class="card"><div class="row"><b>Mon profil</b><span class="meta">'+pct+'%</span></div><div class="prog" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pct+'%"></i></div></div>';
+  function rowBtn(k,icn,label){return '<button class="row-link" data-open-sec="'+k+'">'+ic(icn)+'<span class="grow">'+label+'</span>'+ic("chev").replace('<svg','<svg class="chev"')+'</button>'}
+  h+='<div class="menu">';
+  h+=rowBtn("info","user","Mes informations");
+  if(ui.open==="info")h+='<div class="panel"><form class="grid" onsubmit="return false"><div><label for="p-name">Nom</label><input id="p-name" value="'+esc(p.name)+'"></div><div><label for="p-title">Métier</label><input id="p-title" value="'+esc(p.title)+'"></div><div><label for="p-city">Ville</label><input id="p-city" value="'+esc(p.city)+'"></div><div><label for="p-phone">Téléphone</label><input id="p-phone" value="'+esc(p.phone)+'"></div><div class="full"><label for="p-email">E-mail</label><input id="p-email" type="email" value="'+esc(p.email)+'"></div></form></div>';
+  h+=rowBtn("cv","file","Mon CV et mon portfolio");
+  if(ui.open==="cv")h+='<div class="panel"><form class="grid" onsubmit="return false"><div class="full"><label for="p-portfolio">Lien du portfolio</label><input id="p-portfolio" type="url" placeholder="https://" value="'+esc(p.portfolio)+'"></div><div class="full"><label for="p-cv">Lien du CV (PDF)</label><input id="p-cv" type="url" placeholder="https://" value="'+esc(p.cv)+'"></div></form></div>';
+  h+=rowBtn("apps","chat","Mes candidatures");
+  h+=rowBtn("favs","heart","Mes favoris");
+  h+=rowBtn("set","sliders","Paramètres");
+  if(ui.open==="set")h+='<div class="panel"><label for="s-remind">Relancer après</label><select id="s-remind">'+[3,5,7,10].map(function(n){return '<option value="'+n+'"'+(n===state.remind?' selected':'')+'>'+n+' jours sans réponse</option>'}).join("")+'</select><div style="height:12px"></div><button class="btn sm" data-notif="1">Activer les notifications</button><p class="meta" style="margin:8px 0 0">Vous recevez une alerte quand de nouvelles offres apparaissent à l\'ouverture de l\'application.</p></div>';
+  h+='</div>';
+  return h;
+}
+function wmHtml(){return '<footer class="wm"><img src="'+WM+'" alt="Sayeh Designs"><p>Sayeh Connect est l\'une des applications de <b>Sayeh Designs</b>. Toutes nos applications portent cette même signature.</p></footer>'}
+function viewSplash(){
+  return '<div class="splash"><img class="logo big" alt="" src="'+LOGO+'"><h1>Sayeh<span>Connect</span></h1><p class="tag">Votre passerelle vers de nouvelles opportunités.</p><div class="hand">Un nouvel emploi,<br>une nouvelle étape</div><button class="btn primary" data-start="1">Commencer</button><button class="btn link" data-start="1">Se connecter</button>'+wmHtml()+'</div>';
+}
+function chromeHtml(){
+  if(ui.view==="splash"||ui.view==="detail")return "";
+  var T=[["home","home","Accueil"],["fav","heart","Favoris"],["msg","chat","Messages"],["profile","user","Profil"]];
+  return '<nav class="tabs" aria-label="Navigation"><div class="tabs-in">'+T.map(function(t){return '<button data-nav="'+t[0]+'"'+(ui.view===t[0]?' aria-current="page"':'')+'>'+ic(t[1],ui.view===t[0]&&t[0]==="fav")+t[2]+'</button>'}).join("")+'</div></nav>';
+}
+function render(){
+  var v=ui.view,h="";
+  if(v==="splash")h=viewSplash();
+  else if(v==="home")h=viewHome();
+  else if(v==="fav")h=viewFav();
+  else if(v==="detail")h=viewDetail();
+  else if(v==="msg")h=viewMsg();
+  else if(v==="profile")h=viewProfile();
+  var keepQ=(v==="home"&&document.activeElement&&document.activeElement.id==="q");
+  document.body.classList.toggle("sp",v==="splash");
+  $("app").innerHTML=h+(v==="splash"?"":wmHtml());$("chrome").innerHTML=chromeHtml();
+  if(v==="msg"&&ui.msgTab==="tpl")refreshTpl();
+  if(keepQ){var q=$("q");q.focus();q.setSelectionRange(q.value.length,q.value.length)}
+}
+function go(view,extra){
+  if(extra)for(var k in extra)ui[k]=extra[k];
+  ui.view=view;render();window.scrollTo(0,0);
+}
+function refreshTpl(){var f=fillTpl(),s=$("t-subject"),b=$("t-body");if(s)s.value=f.s;if(b)b.value=f.b}
+function copyText(txt,el){
+  function fallback(){el.focus();el.select();try{document.execCommand("copy");toast("Copié")}catch(e){toast("Sélectionnez le texte et copiez-le")}}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast("Copié")},fallback)}else fallback();
+}
+function toggleFav(id){
+  var i=-1;state.favs.forEach(function(f,k){if(f.id===id)i=k});
+  if(i>=0)state.favs.splice(i,1);else{var o=offerById(id);if(o)state.favs.push(JSON.parse(JSON.stringify(o)))}
+  persist();
+}
+
+/* ---------- offres réelles, ajout manuel, notifications ---------- */
+function noteHtml(){
+  if(mode==="demo")return '<div class="note"><b>Mode démo.</b> Les offres affichées sont des exemples. Les offres réelles apparaissent quand l\'application est hébergée avec son serveur.</div>';
+  var t=ui.updated?new Date(ui.updated):null;
+  var h='<div class="note">Offres réelles'+(t?' · mises à jour à '+pad(t.getHours())+':'+pad(t.getMinutes()):'')+'. Sources : Adzuna, Arbeitnow, Remotive.';
+  if(ui.zone==="tn")h+=' Pour la Tunisie, ouvrez les sites ci-dessous et ajoutez ici les offres qui vous intéressent.';
+  return h+'</div>';
+}
+function manualHtml(){
+  if(ui.zone!=="tn")return "";
+  var h='<div class="btns" style="margin:4px 0 10px"><button class="btn sm" data-toggleman="1">'+(ui.manOpen?'Fermer':'+ Ajouter une offre trouvée')+'</button></div>';
+  if(ui.manOpen)h+='<form id="manForm" class="grid card"><div class="full"><label for="m-t">Titre du poste</label><input id="m-t" required autocomplete="off"></div><div><label for="m-c">Entreprise</label><input id="m-c" required autocomplete="off"></div><div><label for="m-k">Ville</label><input id="m-k" autocomplete="off"></div><div class="full"><label for="m-u">Lien de l\'offre</label><input id="m-u" type="url" placeholder="https://" autocomplete="off"></div><div class="full"><label for="m-ct">Contrat</label><select id="m-ct"><option value="full">Temps plein</option><option value="part">Temps partiel</option><option value="free">Freelance</option></select></div><div class="full"><button class="btn primary" type="submit" style="width:100%">Ajouter à mes offres</button></div></form>';
+  return h;
+}
+function addManual(){
+  var o={id:"m"+uid(),z:"tn",manual:true,ct:$("m-ct").value,t:$("m-t").value.trim(),c:$("m-c").value.trim(),k:$("m-k").value.trim()||"Tunisie",url:$("m-u").value.trim(),s:85,mode:"Offre ajoutée par vous",lang:"voir l'annonce",how:"Postulez depuis le lien de l'offre ou par e-mail, avec votre CV et votre portfolio."};
+  state.manual.unshift(o);ui.manOpen=false;persist();toast("Offre ajoutée");render();
+}
+function loadJobs(){
+  var cached=null;
+  try{cached=JSON.parse(localStorage.getItem("sc-jobs")||"null")}catch(e){}
+  if(cached&&cached.jobs&&cached.jobs.length){live=cached.jobs;mode="live";ui.updated=cached.ts;rerenderSafe()}
+  fetch("api/jobs").then(function(r){if(!r.ok)throw new Error("api");return r.json()}).then(function(d){
+    if(!d.jobs||!d.jobs.length){if(!live.length)mode="demo";return}
+    live=d.jobs;mode="live";ui.updated=Date.now();
+    try{localStorage.setItem("sc-jobs",JSON.stringify({ts:ui.updated,jobs:live}))}catch(e){}
+    rerenderSafe();notifyNew();
+  }).catch(function(){if(!live.length){mode="demo";rerenderSafe()}});
+}
+function rerenderSafe(){var a=document.activeElement;if(!(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)))render()}
+function notifyNew(){
+  var ids=live.map(function(o){return o.id}),fresh=live.filter(function(o){return !o.scam&&state.seen.indexOf(o.id)<0});
+  var firstRun=state.seen.length===0;
+  state.seen=ids.concat(state.seen).slice(0,400);persist();
+  if(firstRun||!fresh.length||!("Notification" in window)||Notification.permission!=="granted")return;
+  var body=fresh.length+(fresh.length>1?" nouvelles offres":" nouvelle offre")+" : "+fresh[0].t;
+  if(navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(function(r){r.showNotification("Sayeh Connect",{body:body,icon:"icons/icon-192.png",badge:"icons/icon-192.png"})}).catch(function(){});
+}
+function enableNotif(){
+  if(!("Notification" in window)){toast("Notifications non disponibles sur cet appareil");return}
+  Notification.requestPermission().then(function(p){toast(p==="granted"?"Notifications activées":"Notifications refusées")});
+}
+function registerSW(){if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){})}
+
+/* ---------- événements ---------- */
+document.addEventListener("click",function(e){
+  var t=e.target;
+  var el;
+  if((el=t.closest("[data-start]"))){writeSeen();seen=true;go("home");return}
+  if((el=t.closest("[data-nav]"))){go(el.dataset.nav);return}
+  if((el=t.closest("[data-back]"))){go(ui.from||"home");return}
+  if((el=t.closest("[data-fav]"))){e.stopPropagation();toggleFav(el.dataset.fav);render();return}
+  if((el=t.closest("[data-open]"))){ui.from=ui.view;go("detail",{detail:el.dataset.open});return}
+  if((el=t.closest("[data-zone]"))){ui.zone=el.dataset.zone;render();return}
+  if((el=t.closest("[data-ct]"))){ui.ct=el.dataset.ct;render();return}
+  if((el=t.closest("[data-apply]"))){
+    var o=offerById(el.dataset.apply);
+    if(o&&!appFor(o.id)){addContact({name:o.c,country:o.k,offer:o.t,notes:"Postulé via : "+o.how,offerId:o.id});toast("Candidature enregistrée");setTimeout(render,0)}
+    return; /* le lien s'ouvre dans un nouvel onglet */
+  }
+  if((el=t.closest("[data-skip]"))){state.dismissed.push(el.dataset.skip);persist();toast("Offre ignorée");go(ui.from||"home");return}
+  if((el=t.closest("[data-goapps]"))){go("msg",{msgTab:"apps",filter:"all"});return}
+  if((el=t.closest("[data-mtab]"))){ui.msgTab=el.dataset.mtab;render();return}
+  if((el=t.closest("[data-toggleadd]"))){ui.addOpen=!ui.addOpen;render();return}
+  if((el=t.closest("[data-toggleman]"))){ui.manOpen=!ui.manOpen;render();return}
+  if(t.closest("[data-notif]")){enableNotif();return}
+  if((el=t.closest("[data-filter]"))){ui.filter=el.dataset.filter;render();return}
+  if((el=t.closest("[data-lang]"))){ui.tplLang=el.dataset.lang;render();return}
+  if((el=t.closest("[data-key]"))){ui.tplKey=el.dataset.key;render();return}
+  if(t.id==="copyBody"){copyText($("t-body").value,$("t-body"));return}
+  if(t.id==="copySubject"){copyText($("t-subject").value,$("t-subject"));return}
+  if((el=t.closest("[data-open-sec]"))){
+    var k=el.dataset.openSec;
+    if(k==="apps"){go("msg",{msgTab:"apps",filter:"all"});return}
+    if(k==="favs"){go("fav");return}
+    ui.open=ui.open===k?"":k;render();return;
+  }
+  var b=t.closest("[data-act]"),cEl=b&&b.closest("[data-id]");
+  if(b&&cEl&&b.tagName!=="SELECT"){
+    var c=state.contacts.filter(function(x){return x.id===cEl.dataset.id})[0];if(!c)return;
+    var act=b.dataset.act;
+    if(act==="followup"){c.followups=(c.followups||0)+1;c.lastFollow=Date.now();persist();render();toast("Relance enregistrée")}
+    if(act==="archive"){c.status="archived";c.statusAt=Date.now();persist();render()}
+    if(act==="del"){state.contacts=state.contacts.filter(function(x){return x!==c});persist();render()}
+    if(act==="tpl"){ui.tplContactName=c.name;ui.tplCompany=c.name;ui.tplRole=c.offer||ui.tplRole;ui.tplKey=(c.followups||dueInfo(c))?"follow":"first";go("msg",{msgTab:"tpl"})}
+  }
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  var a=e.target.closest&&e.target.closest("article[data-open]");
+  if(a&&e.target===a){e.preventDefault();ui.from=ui.view;go("detail",{detail:a.dataset.open})}
+});
+document.addEventListener("change",function(e){
+  var s=e.target;
+  if(s.matches&&s.matches("select[data-act=status]")){
+    var c=state.contacts.filter(function(x){return x.id===s.closest("[data-id]").dataset.id})[0];if(!c)return;
+    c.status=s.value;c.statusAt=Date.now();persist();render();return;
+  }
+  if(s.id==="s-remind"){state.remind=parseInt(s.value,10)||5;persist();render()}
+});
+document.addEventListener("submit",function(e){
+  if(e.target.id==="manForm"){e.preventDefault();addManual();return}
+  if(e.target.id!=="addForm")return;e.preventDefault();
+  addContact({name:$("f-name").value.trim(),country:$("f-country").value.trim(),phone:$("f-phone").value.trim(),offer:$("f-offer").value.trim(),notes:$("f-notes").value.trim()});
+  ui.addOpen=false;render();toast("Enregistré avec la date et l'heure");
+});
+var pTimer;
+document.addEventListener("input",function(e){
+  var id=e.target.id;
+  if(id==="q"){ui.q=e.target.value;$("list").innerHTML=listHtml();return}
+  if(id==="t-contact"){ui.tplContactName=e.target.value;refreshTpl();return}
+  if(id==="t-company"){ui.tplCompany=e.target.value;refreshTpl();return}
+  if(id==="t-role"){ui.tplRole=e.target.value;refreshTpl();return}
+  var map={"p-name":"name","p-title":"title","p-city":"city","p-phone":"phone","p-email":"email","p-portfolio":"portfolio","p-cv":"cv"};
+  if(map[id]){
+    state.profile[map[id]]=e.target.value;
+    var pct=profileScore(),bar=document.querySelector(".prog i");
+    if(bar){bar.style.width=pct+"%";bar.parentNode.setAttribute("aria-valuenow",pct);bar.parentNode.previousElementSibling.lastChild.textContent=pct+"%"}
+    clearTimeout(pTimer);pTimer=setTimeout(persist,600);
+  }
+});
+
+/* ---------- démarrage ---------- */
+seen=readSeen();
+ui.view=seen?"home":"splash";
+render();
+function boot(s){
+  store=s;
+  s.load().then(function(d){
+    if(d){
+      state.contacts=d.contacts||[];state.dismissed=d.dismissed||[];state.favs=(d.favs||[]).filter(function(f){return f&&typeof f==="object"});state.manual=d.manual||[];state.seen=d.seen||[];
+      if(d.profile)for(var k in d.profile)state.profile[k]=d.profile[k];
+      else if(d.me)state.profile.name=d.me;
+      if(d.remind)state.remind=d.remind;
+    }
+    var typing=document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+    if(!typing)render();
+  }).catch(function(){});
+}
+boot(localStore());
+loadJobs();
+registerSW();
+})();
+</script>
+
+</body></html>
